@@ -19,12 +19,6 @@ class OtpController extends Controller
             return redirect()->route('home'); // Redirect to the dashboard if logged in
         }
 
-        // If email is already verified, show the login page
-        $user = Auth::user();
-        if ($user && $user->hasVerifiedEmail()) {
-            return view('auth.login'); // Direct them to the login page if verified
-        }
-
         return view('verify_email'); // Show the verify email form if not verified
     }
 
@@ -61,9 +55,11 @@ class OtpController extends Controller
                 // Create user with only email, no password set yet
                 $user = User::create([
                     'email' => $request->email,
-                    // Do not set the password here
+                    'password' => null,
                 ]);
             }
+
+            session(['user_id' => $user->id]);
 
             // Log in the user after email verification
             //Auth::login($user);
@@ -83,27 +79,31 @@ class OtpController extends Controller
     public function setupPassword(Request $request)
     {
         $request->validate([
-            'password' => 'required|string|min:8|confirmed', // Ensure password confirmation
+            'password' => 'required|string|min:4|confirmed', // Ensure password confirmation
         ]);
 
         // Get the authenticated user (the one that was logged in during email verification)
-        $user = Auth::user();
+        //$user = Auth::user();
+        $userId = session('user_id');
+
+        if (!$userId) {
+            return redirect()->route('login')->withErrors(['error' => 'Session expired. Please try again.']);
+        }
+
+        $user = User::find($userId);
 
         if (!$user) {
-            return redirect()->route('login')->withErrors(['error' => 'You must be logged in to set a password.']);
+            return redirect()->route('login')->withErrors(['error' => 'User not found.']);
         }
+
 
         // Save the hashed password
         $user->password = Hash::make($request->password);
-        $user->save();
 
-        return redirect()->route('login')->with('message', 'Password set successfully. Please log in.');
+        if ($user->save()) {
+            return redirect()->route('login')->with('message', 'Password set successfully. Please log in.');
+        }
+
+        return back()->withErrors(['error' => 'Failed to save password.']);
     }
-
-
-
 }
-
-
-
-

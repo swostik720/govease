@@ -18,15 +18,17 @@ class Plus2Seeder extends Seeder
         Plus2::create([
             'symbol_number' => 'SYM-001',
             'name' => 'John Doe',
-            'college' => '2022-06-15',
+            'passed_year' => 2020,
             'gpa' => '3.8',
+            'college' => 'ABC',
         ]);
 
         Plus2::create([
             'symbol_number' => 'SYM-002',
             'name' => 'Jane Smith',
-            'college' => '2021-12-01',
+            'passed_year' => 2015,
             'gpa' => '3.5',
+            'college' => 'XYZ',
         ]);
     }
 }

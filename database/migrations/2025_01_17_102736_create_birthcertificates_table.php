@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('birth_certificates', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password')->nullable();
-            $table->rememberToken();
+            $table->string('birthcertificate_number')->unique();
+            $table->string('name');
+            $table->date('issue_date');
+            $table->string('address');
+            $table->string('father_name');
+            $table->string('mother_name');
             $table->timestamps();
         });
     }
@@ -31,8 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('password');
-        });
+        Schema::dropIfExists('birth_certificates');
     }
 };

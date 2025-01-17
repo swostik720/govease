@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             PanSeeder::class,
             VoterSeeder::class,
             Plus2Seeder::class,
+            BirthcertificateSeeder::class,
         ]);
     }
 }

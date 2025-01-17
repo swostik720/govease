@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BirthCertificate;
 use App\Models\Citizenship;
 use App\Models\License;
 use App\Models\Pan;
@@ -33,7 +34,7 @@ class HomeController extends Controller
 
     public function showForm($type)
     {
-        if (!in_array($type, ['citizenship', 'license', 'voter', 'pan', 'plus2'])) {
+        if (!in_array($type, ['citizenship', 'license', 'voter', 'pan', 'plus2', 'birthcertificate'])) {
             abort(404, 'Invalid form type');
         }
         return view("home.forms.$type"); // Show form based on type (e.g., 'citizenship')
@@ -73,6 +74,11 @@ class HomeController extends Controller
                 break;
             case 'plus2':
                 $data = Plus2::where('symbol_number', $request->number)
+                    ->where('name', $request->name)
+                    ->first();
+                break;
+            case 'birthcertificate':
+                $data = BirthCertificate::where('birthcertificate_number', $request->number)
                     ->where('name', $request->name)
                     ->first();
                 break;

@@ -37,12 +37,13 @@
                     <div class="box" onclick="openForm('voter')">Voter Card</div>
                     <div class="box" onclick="openForm('pan')">PAN ID</div>
                     <div class="box" onclick="openForm('plus2')">+2 Details</div>
+                    <div class="box" onclick="openForm('birthcertificate')">Birth Certificate</div>
                 </div>
             </div>
         </div>
     </div>
 </div>
- 
+
 <script>
     function openForm(type) {
         window.location.href = `home/${type}`;

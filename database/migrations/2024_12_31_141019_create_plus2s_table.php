@@ -15,10 +15,11 @@ return new class extends Migration
     {
         Schema::create('plus2s', function (Blueprint $table) {
             $table->id();
-            $table->string('symbol_number')->unique(); 
+            $table->string('symbol_number')->unique();
             $table->string('name');
-            $table->date('college');
+            $table->year('passed_year');
             $table->string('gpa');
+            $table->string('college');
             $table->timestamps();
         });
     }

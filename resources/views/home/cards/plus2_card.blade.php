@@ -11,6 +11,7 @@
     <h2>Plus 2</h2>
     <p><strong>Full Name:</strong> {{ $data->name }}</p>
     <p><strong>Symbol Number:</strong> {{ $data->symbol_number }}</p>
-    <p><strong>College:</strong> {{ $data->college }}</p>
+    <p><strong>Passed Year:</strong> {{ $data->passed_year }}</p>
     <p><strong>GPA:</strong> {{ $data->gpa }}</p>
+    <p><strong>College:</strong> {{ $data->college }}</p>
 </div>
