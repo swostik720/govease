@@ -16,10 +16,15 @@ class OtpController extends Controller
     {
         // Check if the user is already logged in
         if (Auth::check()) {
-            return redirect()->route('home'); // Redirect to the dashboard if logged in
+            return response()->json([
+                'message' => 'User is already logged in.',
+                'redirect' => route('home') // Provide the route to redirect if needed
+            ], 200); // Redirect to the dashboard if logged in
         }
 
-        return view('verify_email'); // Show the verify email form if not verified
+        return response()->json([
+            'message' => 'Please verify your email to proceed 123.'
+        ], 200); // Show the verify email form if not verified
     }
 
     public function sendOtp(Request $request)
@@ -37,7 +42,11 @@ class OtpController extends Controller
             $message->to($request->email)->subject('OTP Verification');
         });
 
-        return back()->with('message', 'OTP sent to your email.');
+       
+        return response()->json([
+            'message' => 'OTP sent successfully to your email.',
+            'email' => $request->email,
+        ], 200);
     }
 
     public function verifyOtp(Request $request)
@@ -63,37 +72,46 @@ class OtpController extends Controller
 
             // Log in the user after email verification
             //Auth::login($user);
+            return response()->json([
+                'message' => 'Email verified successfully.',
+                'user_id' => $user->id,
+                // 'redirect' => route('api.selectOption'),
+            ], 200);
 
-            return redirect()->route('selectOption')->with('message', 'Email verified successfully');
         }
-
-        return back()->withErrors(['otp' => 'Invalid or expired OTP.']);
+        return response()->json([
+            'error' => 'Invalid or expired OTP.',
+        ], 400);
     }
 
 
     public function showPasswordForm()
     {
-        return view('setup_password'); // Show the setup password form
+        return response()->json([
+            'message'=>'please enter the password to setup'
+        ]); // Show the setup password form
     }
 
     public function setupPassword(Request $request)
     {
-        $request->validate([
-            'password' => 'required|string|min:4|confirmed', // Ensure password confirmation
-        ]);
-
-        // Get the authenticated user (the one that was logged in during email verification)
+      
+      // Get the authenticated user (the one that was logged in during email verification)
         //$user = Auth::user();
         $userId = session('user_id');
 
         if (!$userId) {
-            return redirect()->route('login')->withErrors(['error' => 'Session expired. Please try again.']);
+            
+            return response()->json([
+                'message'=>'session expired'
+            ]);
         }
 
         $user = User::find($userId);
 
         if (!$user) {
-            return redirect()->route('login')->withErrors(['error' => 'User not found.']);
+            return response()->json([
+                'message'=>'user not found!'
+            ]);
         }
 
 
@@ -101,9 +119,13 @@ class OtpController extends Controller
         $user->password = Hash::make($request->password);
 
         if ($user->save()) {
-            return redirect()->route('login')->with('message', 'Password set successfully. Please log in.');
+            return response()->json([
+                'message'=>'password setup successfully.please login to continue!'
+            ]);
         }
 
-        return back()->withErrors(['error' => 'Failed to save password.']);
+        return response()->json([
+            'message'=>'failed to login'
+        ]);
     }
 }
