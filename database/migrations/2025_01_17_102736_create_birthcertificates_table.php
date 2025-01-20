@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('address');
             $table->string('father_name');
             $table->string('mother_name');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -32,6 +33,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('birth_certificates');
-    }
+        Schema::table('birth_certificates', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+        });    }
 };

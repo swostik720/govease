@@ -9,6 +9,8 @@ use App\Models\Pan;
 use App\Models\Plus2;
 use App\Models\Voter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class HomeController extends Controller
 {
@@ -24,80 +26,79 @@ class HomeController extends Controller
 
     /**
      * Show the application dashboard.
+     * List all available forms and the user's data for each form type.
      *
-     * @return \Illuminate\Contracts\Support\Renderable
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
-        return view('home');
+       // Get the authenticated user
+       $user = Auth::user();
+
+       // Get the verified user from the session
+       $verifiedUserId = Session::get('verified_user_id');
+
+       if (!$verifiedUserId || $verifiedUserId !== $user->id) {
+           return response()->json(['error' => 'Unauthorized access'], 403);
+       }
+
+        // List of all available forms
+        $formTypes = [
+            'citizenship',
+            'license',
+            'voter',
+            'pan',
+            'plus2',
+            'birthcertificate',
+        ];
+
+        // Get data for each form type for the authenticated user
+        $formsData = [];
+        foreach ($formTypes as $type) {
+            $modelClass = '\\App\\Models\\' . ucfirst($type); // Dynamically get model class name
+            $data = $modelClass::where('user_id', $user->id)->get();
+            $formsData[$type] = $data;
+        }
+
+        // Return the list of forms and their data
+        return response()->json([
+            'message' => 'Welcome to the home API',
+            'forms' => $formTypes,
+            'data' => $formsData,
+        ]);
     }
 
+    /**
+     * Show the form with all data from the respective table for the authenticated user.
+     *
+     * @param string $type
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function showForm($type)
     {
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Get the verified user from the session
+        $verifiedUserId = Session::get('verified_user_id');
+
+        if (!$verifiedUserId || $verifiedUserId !== $user->id) {
+            return response()->json(['error' => 'Unauthorized access'], 403);
+        }
+
+        // Validate the type to prevent invalid API requests
         if (!in_array($type, ['citizenship', 'license', 'voter', 'pan', 'plus2', 'birthcertificate'])) {
-            abort(404, 'Invalid form type');
-        }
-        return view("home.forms.$type"); // Show form based on type (e.g., 'citizenship')
-    }
-
-    public function verify(Request $request, $type)
-    {
-        // Validate the input fields 'number' and 'name'
-        $request->validate([
-            'number' => 'required',  // Validate the input number
-            'name' => 'required|string', // Validate the name field
-        ]);
-
-        $data = null;
-
-        // Simulate database matching based on type
-        switch ($type) {
-            case 'citizenship':
-                $data = Citizenship::where('number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'license':
-                $data = License::where('license_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'voter':
-                $data = Voter::where('voter_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'pan':
-                $data = Pan::where('pan_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'plus2':
-                $data = Plus2::where('symbol_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'birthcertificate':
-                $data = BirthCertificate::where('birthcertificate_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            default:
-                abort(404, 'Invalid type');
+            return response()->json(['error' => 'Invalid form type'], 404);
         }
 
-        if ($data) {
-            // Dynamically determine the card view based on the type
-            $viewName = "home.cards.{$type}_card";
+        // Get data based on the type and the authenticated user
+        $modelClass = '\\App\\Models\\' . ucfirst($type); // Dynamically get model class name
+        $data = $modelClass::where('user_id', $user->id)->get();
 
-            // Check if the view exists
-            if (!view()->exists($viewName)) {
-                abort(404, "Card view for type '{$type}' does not exist.");
-            }
-
-            return view($viewName, ['data' => $data]); // Pass data to the specific card view
-        }
-
-        return back()->withErrors(['number' => 'Details do not match our records.']);
+        // Return the data as JSON
+        return response()->json([
+            'message' => 'Form data retrieved successfully',
+            'data' => $data
+        ], 200);
     }
 }

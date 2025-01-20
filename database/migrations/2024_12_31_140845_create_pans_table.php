@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('name');
             $table->date('issue_date');
             $table->string('address');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -30,6 +31,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pans');
-    }
+        Schema::table('pans', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+        });    }
 };

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Plus2;
+use App\Models\User;
 
 class Plus2Seeder extends Seeder
 {
@@ -14,6 +15,7 @@ class Plus2Seeder extends Seeder
      */
     public function run()
     {
+        $user = User::first();
 
         Plus2::create([
             'symbol_number' => 'SYM-001',
@@ -21,6 +23,8 @@ class Plus2Seeder extends Seeder
             'passed_year' => 2020,
             'gpa' => '3.8',
             'college' => 'ABC',
+            'user_id' => $user ? $user->id : null,
+
         ]);
 
         Plus2::create([
@@ -29,6 +33,8 @@ class Plus2Seeder extends Seeder
             'passed_year' => 2015,
             'gpa' => '3.5',
             'college' => 'XYZ',
+            'user_id' => $user ? $user->id : null,
+
         ]);
     }
 }

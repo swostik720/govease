@@ -10,4 +10,9 @@ class Citizenship extends Model
     use HasFactory;
 
     protected $fillable = ['number', 'name', 'issue_date', 'address'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

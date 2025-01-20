@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\License;
+use App\Models\User;
 
 class LicenseSeeder extends Seeder
 {
@@ -14,12 +15,15 @@ class LicenseSeeder extends Seeder
      */
     public function run()
     {
+        $user = User::first();
 
         License::create([
             'license_number' => 'LIC-001',
             'name' => 'John Doe',
             'vehicle_type' => 'Car',
             'issue_date' => '2022-01-01',
+            'user_id' => $user ? $user->id : null,
+
         ]);
 
         License::create([
@@ -27,6 +31,8 @@ class LicenseSeeder extends Seeder
             'name' => 'Jane Smith',
             'vehicle_type' => 'Bike',
             'issue_date' => '2023-06-15',
+            'user_id' => $user ? $user->id : null,
+
         ]);
     }
 }
