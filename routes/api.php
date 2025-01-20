@@ -33,14 +33,14 @@ Route::post('/select-option', function (Request $request) {
     // Handle the selected option
     if ($selectedOption === 'citizenship') {
         return response()->json([
-            'message' => 'Citizenship option selected.',
+            'option' => 'citizenship',
             // 'redirect' => route('api.citizenshipForm'),
         ], 200);
     }
 
     if ($selectedOption === 'license') {
         return response()->json([
-            'message' => 'License option selected.',
+            'option' => 'license',
             // 'redirect' => route('api.licenseForm'),
         ], 200);
     }
