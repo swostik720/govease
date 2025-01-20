@@ -42,7 +42,7 @@ class OtpController extends Controller
             $message->to($request->email)->subject('OTP Verification');
         });
 
-       
+
         return response()->json([
             'message' => 'OTP sent successfully to your email.',
             'email' => $request->email,
@@ -69,6 +69,7 @@ class OtpController extends Controller
             }
 
             session(['user_id' => $user->id]);
+            session()->save();
 
             // Log in the user after email verification
             //Auth::login($user);
@@ -94,13 +95,13 @@ class OtpController extends Controller
 
     public function setupPassword(Request $request)
     {
-      
+
       // Get the authenticated user (the one that was logged in during email verification)
         //$user = Auth::user();
         $userId = session('user_id');
 
         if (!$userId) {
-            
+
             return response()->json([
                 'message'=>'session expired'
             ]);

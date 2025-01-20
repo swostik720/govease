@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OtpController;
@@ -23,7 +25,7 @@ Route::get('/select-option', function () {
 
 // Selection Route
 Route::post('/select-option', function (Request $request) {
-   
+
 
     // Get the selected option
     $selectedOption = $request->input('option');
@@ -59,8 +61,23 @@ Route::get('/license', [LicenseController::class, 'showForm']);
 Route::post('/license/verify', [LicenseController::class, 'verify']);
 
 // Setup Password Routes
-Route::get('/setup-password', [OtpController::class, 'showPasswordForm']);
-Route::post('/setup-password', [OtpController::class, 'setupPassword']);
+Route::middleware('web')->group(function () {
+    Route::get('/setup-password', [OtpController::class, 'showPasswordForm']);
+    Route::post('/setup-password', [OtpController::class, 'setupPassword']);
+});
+
+//Authentication Routes
+Route::get('/login', [AuthController::class, 'showApiLogin']);
+Route::post('/login', [AuthController::class, 'apiLogin']);
+Route::get('/forgot-password', [AuthController::class, 'showApiForgotPassword']);
+Route::post('/forgot-password', [AuthController::class, 'apiForgotPassword']);
+Route::get('/reset-password', [AuthController::class, 'showApiResetPassword']);
+Route::post('/reset-password', [AuthController::class, 'apiResetPassword']);
+
+// Protected Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'apiLogout']);
+});
 
 // Home Routes
 Route::get('/home', [HomeController::class, 'index'])->name('api.home');
