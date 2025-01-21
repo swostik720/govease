@@ -21,7 +21,6 @@ class BirthcertificateSeeder extends Seeder
             'father_name' => 'Robert Doe',
             'mother_name' => 'Emily Doe',
             'user_id' => $user ? $user->id : null,
-            'token' => Str::random(60),
         ]);
 
         BirthCertificate::create([
@@ -32,7 +31,6 @@ class BirthcertificateSeeder extends Seeder
             'father_name' => 'Michael Smith',
             'mother_name' => 'Sophia Smith',
             'user_id' => $user ? $user->id : null,
-            'token' => Str::random(60),
         ]);
     }
 }

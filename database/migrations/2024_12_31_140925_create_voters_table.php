@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('voter_number')->unique();
             $table->string('name');
-            $table->string('token');
+            $table->string('token')->nullable();
             $table->date('issue_date');
             $table->string('address');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
@@ -35,5 +35,7 @@ return new class extends Migration
         Schema::table('voters', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->dropColumn('user_id');
-        });    }
+            $table->dropColumn('token');
+        });
+    }
 };

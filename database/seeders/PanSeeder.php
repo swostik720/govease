@@ -19,7 +19,6 @@ class PanSeeder extends Seeder
             'issue_date' => '2021-03-10',
             'address' => '123 Main Street',
             'user_id' => $user ? $user->id : null,
-            'token' => Str::random(60),
         ]);
 
         Pan::create([
@@ -28,7 +27,6 @@ class PanSeeder extends Seeder
             'issue_date' => '2020-12-25',
             'address' => '456 Elm Street',
             'user_id' => $user ? $user->id : null,
-            'token' => Str::random(60),
         ]);
     }
 }

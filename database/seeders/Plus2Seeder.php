@@ -20,7 +20,6 @@ class Plus2Seeder extends Seeder
             'gpa' => '3.8',
             'college' => 'ABC',
             'user_id' => $user ? $user->id : null,
-            'token' => Str::random(60),
         ]);
 
         Plus2::create([
@@ -30,7 +29,6 @@ class Plus2Seeder extends Seeder
             'gpa' => '3.5',
             'college' => 'XYZ',
             'user_id' => $user ? $user->id : null,
-            'token' => Str::random(60),
         ]);
     }
 }

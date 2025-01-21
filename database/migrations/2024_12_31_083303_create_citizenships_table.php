@@ -17,10 +17,10 @@ return new class extends Migration
             $table->id();
             $table->string('number')->unique(); // Citizenship number
             $table->string('name');
-            $table->string('token')->nullable();
             $table->date('issue_date');
             $table->string('address');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->string('token')->nullable();
             $table->timestamps();
         });
     }

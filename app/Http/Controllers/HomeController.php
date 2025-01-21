@@ -30,111 +30,62 @@ class HomeController extends Controller
      */
     public function index(Request $request)
     {
-        // Get the authenticated user
         $user = Auth::user();
-
-        // Get the login token from the Authorization header
         $loginToken = $request->bearerToken();
 
         if (!$loginToken) {
             return response()->json(['error' => 'Invalid or missing login token.'], 401);
         }
 
-        // Get the verification token from the request query
         $verificationToken = $request->query('Verification-Token');
 
         if (!$verificationToken) {
             return response()->json(['error' => 'Verification token not provided.'], 400);
         }
 
-        // Check if the verification token matches for citizenship and license
-        $citizenship = Citizenship::where('token', $verificationToken)->first();
-        $license = License::where('token', $verificationToken)->first();
+        $validModels = [
+            'citizenship' => Citizenship::class,
+            'license' => License::class,
+            'voter' => Voter::class,
+            'pan' => Pan::class,
+            'plus2' => Plus2::class,
+            'birthcertificate' => BirthCertificate::class,
+        ];
 
-        // Update citizenship or license records with the user_id if applicable
-        if ($citizenship) {
-            if ($citizenship->user_id !== $user->id) {
-                $citizenship->user_id = $user->id;
-                $citizenship->save();  // Save the updated record
+        $isValidToken = false;
+
+        foreach ($validModels as $type => $model) {
+            $record = $model::where('token', $verificationToken)->first();
+            if ($record) {
+                $isValidToken = true;
+
+                // Link the record to the authenticated user if not already linked
+                if ($record->user_id !== $user->id) {
+                    $record->user_id = $user->id;
+                    $record->save();
+                }
             }
         }
 
-        if ($license) {
-            if ($license->user_id !== $user->id) {
-                $license->user_id = $user->id;
-                $license->save();  // Save the updated record
-            }
-        }
-
-        // If neither citizenship nor license are found, return an error
-        if (!$citizenship && !$license) {
+        if (!$isValidToken) {
             return response()->json(['error' => 'Invalid or unauthorized verification token.'], 403);
         }
 
-        // List of all available forms
-        $formTypes = [
-            'citizenship',
-            'license',
-            'voter',
-            'pan',
-            'plus2',
-            'birthcertificate',
-        ];
-
-        // Get data for each form type for the authenticated user
         $formsData = [];
-        foreach ($formTypes as $type) {
-            $modelClass = '\\App\\Models\\' . ucfirst($type); // Dynamically get model class name
-            \Log::info("Fetching data for {$type} model where user_id = {$user->id}");
-
-            switch ($type) {
-                case 'citizenship':
-                    // For citizenship, use verification token validation
-                    if ($citizenship) {
-                        $citizenshipData = Citizenship::where('user_id', $user->id)
-                            ->select('*')
-                            ->with(['user'])
-                            ->get();
-                        $formsData[$type] = $citizenshipData;
-                    }
-                    break;
-
-                case 'license':
-                    // For license, use verification token validation
-                    if ($license) {
-                        $licenseData = License::where('user_id', $user->id)
-                            ->select('*')
-                            ->with(['user'])
-                            ->get();
-                        $formsData[$type] = $licenseData;
-                    }
-                    break;
-
-                case 'voter':
-                case 'pan':
-                case 'plus2':
-                case 'birthcertificate':
-                    // For these models, use both user_id and token validation
-                    $data = $modelClass::where('user_id', $user->id)
-                        ->where('token', $verificationToken)  // Check token as well
-                        ->select('*')
-                        ->with(['user'])
-                        ->get();
-                    $formsData[$type] = $data;  // Add data for the form type
-                    break;
-
-                default:
-                    return response()->json(['error' => 'Invalid form type'], 404);
-            }
+        foreach ($validModels as $type => $model) {
+            $formsData[$type] = $model::where('user_id', $user->id)
+                ->where('token', $verificationToken)
+                ->with(['user'])
+                ->get();
         }
 
-        // Return the response with all fetched data
         return response()->json([
             'message' => 'Form data retrieved successfully',
-            'forms' => $formTypes,
+            'forms' => array_keys($validModels),
             'data' => $formsData,
         ], 200);
     }
+
 
 
 
@@ -148,68 +99,49 @@ class HomeController extends Controller
      */
     public function showForm(Request $request, $type)
     {
-        // Get the authenticated user
         $user = Auth::user();
-
-        // Get the login token from the Authorization header
         $loginToken = $request->bearerToken();
 
         if (!$loginToken) {
             return response()->json(['error' => 'Invalid or missing login token.'], 401);
         }
 
-        // Compare the login token with the current user's token (if you're using Sanctum or Passport)
-        // if ($user->currentAccessToken()->plainTextToken !== $loginToken) {
-        //     return response()->json(['error' => 'Invalid or mismatched login token.'], 401);
-        // }
-
-        // Get the verification token from the request query
         $verificationToken = $request->query('Verification-Token');
 
         if (!$verificationToken) {
             return response()->json(['error' => 'Verification token not provided.'], 400);
         }
 
-        // Check if the verification token matches any record (citizenship or license)
-        $citizenship = Citizenship::where('token', $verificationToken)->first();
-        $license = License::where('token', $verificationToken)->first();
+        $validModels = [
+            'citizenship' => Citizenship::class,
+            'license' => License::class,
+            'voter' => Voter::class,
+            'pan' => Pan::class,
+            'plus2' => Plus2::class,
+            'birthcertificate' => BirthCertificate::class,
+        ];
 
-        // Update citizenship or license records with the user_id, if applicable
-        if ($citizenship) {
-            // Set the user_id only if it's not already set
-            if ($citizenship->user_id !== $user->id) {
-                $citizenship->user_id = $user->id;
-                $citizenship->save();  // Save the updated record
-            }
-        }
-
-        if ($license) {
-            // Set the user_id only if it's not already set
-            if ($license->user_id !== $user->id) {
-                $license->user_id = $user->id;
-                $license->save();  // Save the updated record
-            }
-        }
-
-        // If neither citizenship nor license is found, return an error
-        if (!$citizenship && !$license) {
-            return response()->json(['error' => 'Invalid or unauthorized verification token.'], 403);
-        }
-
-
-        // Validate the type to prevent invalid API requests
-        if (!in_array($type, ['citizenship', 'license', 'voter', 'pan', 'plus2', 'birthcertificate'])) {
+        if (!array_key_exists($type, $validModels)) {
             return response()->json(['error' => 'Invalid form type'], 404);
         }
 
-        // Get data based on the type and the authenticated user
-        $modelClass = '\\App\\Models\\' . ucfirst($type); // Dynamically get model class name
-        $data = $modelClass::where('user_id', $user->id)->get();
+        $model = $validModels[$type];
+        $record = $model::where('token', $verificationToken)->first();
 
-        // Return the data as JSON
+        if ($record) {
+            if ($record->user_id !== $user->id) {
+                $record->user_id = $user->id;
+                $record->save();
+            }
+        } else {
+            return response()->json(['error' => 'Invalid or unauthorized verification token.'], 403);
+        }
+
+        $data = $model::where('user_id', $user->id)->get();
+
         return response()->json([
             'message' => 'Form data retrieved successfully',
-            'data' => $data
+            'data' => $data,
         ], 200);
     }
 }

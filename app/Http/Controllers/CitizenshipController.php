@@ -6,6 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Citizenship;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use App\Models\License;
+use App\Models\BirthCertificate;
+use App\Models\Pan;
+use App\Models\Voter;
+use App\Models\Plus2;
+
 
 class CitizenshipController extends Controller
 {
@@ -21,20 +27,35 @@ class CitizenshipController extends Controller
     {
         $request->validate(['number' => 'required', 'name' => 'required']);
 
+        // Check if the citizenship exists based on provided details
         $citizenship = Citizenship::where('number', $request->number)
             ->where('name', $request->name)
             ->first();
 
         if ($citizenship) {
-            // Generate a simple random token
-            $token = Str::random(60);  // 60-character random string
+            // Generate a universal token (60-character random string)
+            $token = Str::random(60);
 
-            // Store the token in the database or in a separate table (optional)
+            // Save the token to the citizenship model
             $citizenship->token = $token;
-            $citizenship->save(); // Save token to database
-        }
+            $citizenship->save();
 
-        if ($citizenship) {
+            // Save the token to other models for the same user_id
+            $userId = $citizenship->user_id;
+
+            // List of other models to update
+            $otherModels = [
+                License::class,
+                Voter::class,
+                Pan::class,
+                Plus2::class,
+                BirthCertificate::class,
+            ];
+
+            foreach ($otherModels as $model) {
+                $model::where('user_id', $userId)->update(['token' => $token]);
+            }
+
             return response()->json([
                 'message' => 'Citizenship verified successfully.',
                 'token' => $token,

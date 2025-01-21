@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('symbol_number')->unique();
             $table->string('name');
-            $table->string('token');
+            $table->string('token')->nullable();
             $table->year('passed_year');
             $table->string('gpa');
             $table->string('college');
@@ -36,5 +36,7 @@ return new class extends Migration
         Schema::table('plus2s', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->dropColumn('user_id');
-        });    }
+            $table->dropColumn('token');
+        });
+    }
 };

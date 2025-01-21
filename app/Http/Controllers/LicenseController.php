@@ -2,8 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BirthCertificate;
+use App\Models\Citizenship;
 use Illuminate\Http\Request;
 use App\Models\License;
+use App\Models\Pan;
+use App\Models\Plus2;
+use App\Models\Voter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
@@ -24,15 +29,25 @@ class LicenseController extends Controller
             ->first();
 
         if ($license) {
-            // Generate a simple random token
             $token = Str::random(60);  // 60-character random string
 
-            // Store the token in the database or in a separate table (optional)
             $license->token = $token;
-            $license->save(); // Save token to database
-        }
+            $license->save();
 
-        if ($license) {
+            $userId = $license->user_id;
+
+            $otherModels = [
+                Citizenship::class,
+                Voter::class,
+                Pan::class,
+                Plus2::class,
+                BirthCertificate::class,
+            ];
+
+            foreach ($otherModels as $model) {
+                $model::where('user_id', $userId)->update(['token' => $token]);
+            }
+
             return response()->json([
                 'message' => 'License verified successfully.',
                 'token' => $token,
