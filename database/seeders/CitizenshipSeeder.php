@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Citizenship;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,11 +17,15 @@ class CitizenshipSeeder extends Seeder
      */
     public function run()
     {
+        $user = User::first();
+        // dd($user);
+
         Citizenship::create([
             'number' => 'CIT-123456',
             'name' => 'John Doe',
             'issue_date' => '2020-01-01',
             'address' => '123 Main Street',
+            'user_id' => $user ? $user->id : null,
         ]);
 
         Citizenship::create([
@@ -28,6 +33,7 @@ class CitizenshipSeeder extends Seeder
             'name' => 'Jane Smith',
             'issue_date' => '2021-05-15',
             'address' => '456 Elm Street',
+            'user_id' => $user ? $user->id : null,
         ]);
     }
 }

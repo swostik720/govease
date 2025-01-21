@@ -16,7 +16,8 @@ class AuthController extends Controller
     public function showApiLogin()
     {
         return response()->json([
-            'message' => 'please login to continue!'
+            'message' => 'please login to continue!',
+            'redirect' => route('login'),
         ]);
     }
 
@@ -44,6 +45,7 @@ class AuthController extends Controller
                 'message' => 'Login successful',
                 'user' => $user,
                 'token' => $token,
+                'redirect' => url('/api/home')
             ], 200);
         }
 
@@ -56,13 +58,17 @@ class AuthController extends Controller
         $user = $request->user();
         $user->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Logged out successfully.'], 200);
+        return response()->json([
+            'message' => 'Logged out successfully.',
+            'redirect' => route('loginForm'),
+        ], 200);
     }
 
     public function showApiForgotPassword()
     {
         return response()->json([
-            'message' => 'Forget your password? Send password reset link to your email!'
+            'message' => 'Forget your password? Send password reset link to your email!',
+            'redirect' => route('apiForgotPassword'),
         ]);
     }
 
@@ -101,13 +107,15 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Password reset link sent to your email.',
             'reset-token' => $token,
+            'redirect' => route('showApiResetPassword'),
         ], 200);
     }
 
     public function showApiResetPassword()
     {
         return response()->json([
-            'message' => 'Set your new password!'
+            'message' => 'Set your new password!',
+            'redirect' => route('apiResetPassword'),
         ]);
     }
 
@@ -140,7 +148,10 @@ class AuthController extends Controller
             // Optionally delete the reset token after use
             DB::table('password_resets')->where('email', $request->email)->delete();
 
-            return response()->json(['message' => 'Password reset successful.'], 200);
+            return response()->json([
+                'message' => 'Password reset successful.',
+                'redirect' => route('login'),
+            ], 200);
         }
 
         return response()->json(['message' => 'User not found.'], 404);

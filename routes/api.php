@@ -17,6 +17,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/verify-email', [OtpController::class, 'show']);
 Route::post('/send-otp', [OtpController::class, 'sendOtp']);
 Route::post('/verify-otp', [OtpController::class, 'verifyOtp']);
+
 Route::get('/select-option', function () {
     return response()->json([
         'message'=>'enter the option to continue!'
@@ -26,22 +27,31 @@ Route::get('/select-option', function () {
 // Selection Route
 Route::post('/select-option', function (Request $request) {
 
-
     // Get the selected option
     $selectedOption = $request->input('option');
 
     // Handle the selected option
     if ($selectedOption === 'citizenship') {
         return response()->json([
+<<<<<<< HEAD
             'option' => 'citizenship',
             // 'redirect' => route('api.citizenshipForm'),
+=======
+            'message' => 'Citizenship option selected.',
+            'redirect' => url('/api/citizenship'),
+>>>>>>> new
         ], 200);
     }
 
     if ($selectedOption === 'license') {
         return response()->json([
+<<<<<<< HEAD
             'option' => 'license',
             // 'redirect' => route('api.licenseForm'),
+=======
+            'message' => 'License option selected.',
+            'redirect' => url('/api/license'),
+>>>>>>> new
         ], 200);
     }
 
@@ -57,22 +67,20 @@ Route::get('/citizenship', [CitizenshipController::class, 'showForm']);
 Route::post('/citizenship/verify', [CitizenshipController::class, 'verify_citizenship']);
 
 // License Routes
-Route::get('/license', [LicenseController::class, 'showForm']);
-Route::post('/license/verify', [LicenseController::class, 'verify']);
+Route::get('/license', [LicenseController::class, 'showForm'])->name('license.form');
+Route::post('/license/verify', [LicenseController::class, 'verify'])->name('license.verify');
 
-// Setup Password Routes
-Route::middleware('web')->group(function () {
-    Route::get('/setup-password', [OtpController::class, 'showPasswordForm']);
-    Route::post('/setup-password', [OtpController::class, 'setupPassword']);
-});
+// Password Setup
+Route::get('/setup-password', [OtpController::class, 'showPasswordForm'])->name('setup-password.form');
+Route::post('/setup-password', [OtpController::class, 'setupPassword'])->name('setup-password');
 
-//Authentication Routes
-Route::get('/login', [AuthController::class, 'showApiLogin']);
-Route::post('/login', [AuthController::class, 'apiLogin']);
-Route::get('/forgot-password', [AuthController::class, 'showApiForgotPassword']);
-Route::post('/forgot-password', [AuthController::class, 'apiForgotPassword']);
-Route::get('/reset-password', [AuthController::class, 'showApiResetPassword']);
-Route::post('/reset-password', [AuthController::class, 'apiResetPassword']);
+// Authentication Routes
+Route::get('/login', [AuthController::class, 'showApiLogin'])->name('loginForm');
+Route::post('/login', [AuthController::class, 'apiLogin'])->name('login');
+Route::get('/forgot-password', [AuthController::class, 'showApiForgotPassword'])->name('showApiForgotPassword');
+Route::post('/forgot-password', [AuthController::class, 'apiForgotPassword'])->name('apiForgotPassword');
+Route::get('/reset-password', [AuthController::class, 'showApiResetPassword'])->name('showApiResetPassword');
+Route::post('/reset-password', [AuthController::class, 'apiResetPassword'])->name('apiResetPassword');
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
@@ -80,7 +88,9 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Home Routes
-Route::get('/home', [HomeController::class, 'index'])->name('api.home');
-Route::get('/home/{type}', [HomeController::class, 'showForm'])->name('api.home.forms');
-Route::post('/home/{type}', [HomeController::class, 'verify'])->name('api.home.verify');
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/home/{type}', [HomeController::class, 'showForm']);
+});
+
 

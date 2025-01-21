@@ -17,8 +17,10 @@ return new class extends Migration
             $table->id();
             $table->string('pan_number')->unique();
             $table->string('name');
+            $table->string('token')->nullable();
             $table->date('issue_date');
             $table->string('address');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -30,6 +32,10 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('pans');
+        Schema::table('pans', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+            $table->dropColumn('token');
+        });
     }
 };

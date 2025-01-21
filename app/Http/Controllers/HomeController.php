@@ -9,13 +9,12 @@ use App\Models\Pan;
 use App\Models\Plus2;
 use App\Models\Voter;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
     /**
      * Create a new controller instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -24,80 +23,125 @@ class HomeController extends Controller
 
     /**
      * Show the application dashboard.
+     * List all available forms and the user's data for each form type.
      *
-     * @return \Illuminate\Contracts\Support\Renderable
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('home');
-    }
+        $user = Auth::user();
+        $loginToken = $request->bearerToken();
 
-    public function showForm($type)
-    {
-        if (!in_array($type, ['citizenship', 'license', 'voter', 'pan', 'plus2', 'birthcertificate'])) {
-            abort(404, 'Invalid form type');
-        }
-        return view("home.forms.$type"); // Show form based on type (e.g., 'citizenship')
-    }
-
-    public function verify(Request $request, $type)
-    {
-        // Validate the input fields 'number' and 'name'
-        $request->validate([
-            'number' => 'required',  // Validate the input number
-            'name' => 'required|string', // Validate the name field
-        ]);
-
-        $data = null;
-
-        // Simulate database matching based on type
-        switch ($type) {
-            case 'citizenship':
-                $data = Citizenship::where('number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'license':
-                $data = License::where('license_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'voter':
-                $data = Voter::where('voter_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'pan':
-                $data = Pan::where('pan_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'plus2':
-                $data = Plus2::where('symbol_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            case 'birthcertificate':
-                $data = BirthCertificate::where('birthcertificate_number', $request->number)
-                    ->where('name', $request->name)
-                    ->first();
-                break;
-            default:
-                abort(404, 'Invalid type');
+        if (!$loginToken) {
+            return response()->json(['error' => 'Invalid or missing login token.'], 401);
         }
 
-        if ($data) {
-            // Dynamically determine the card view based on the type
-            $viewName = "home.cards.{$type}_card";
+        $verificationToken = $request->query('Verification-Token');
 
-            // Check if the view exists
-            if (!view()->exists($viewName)) {
-                abort(404, "Card view for type '{$type}' does not exist.");
+        if (!$verificationToken) {
+            return response()->json(['error' => 'Verification token not provided.'], 400);
+        }
+
+        $validModels = [
+            'citizenship' => Citizenship::class,
+            'license' => License::class,
+            'voter' => Voter::class,
+            'pan' => Pan::class,
+            'plus2' => Plus2::class,
+            'birthcertificate' => BirthCertificate::class,
+        ];
+
+        $isValidToken = false;
+
+        foreach ($validModels as $type => $model) {
+            $record = $model::where('token', $verificationToken)->first();
+            if ($record) {
+                $isValidToken = true;
+
+                // Link the record to the authenticated user if not already linked
+                if ($record->user_id !== $user->id) {
+                    $record->user_id = $user->id;
+                    $record->save();
+                }
             }
-
-            return view($viewName, ['data' => $data]); // Pass data to the specific card view
         }
 
-        return back()->withErrors(['number' => 'Details do not match our records.']);
+        if (!$isValidToken) {
+            return response()->json(['error' => 'Invalid or unauthorized verification token.'], 403);
+        }
+
+        $formsData = [];
+        foreach ($validModels as $type => $model) {
+            $formsData[$type] = $model::where('user_id', $user->id)
+                ->where('token', $verificationToken)
+                ->with(['user'])
+                ->get();
+        }
+
+        return response()->json([
+            'message' => 'Form data retrieved successfully',
+            'forms' => array_keys($validModels),
+            'data' => $formsData,
+        ], 200);
+    }
+
+
+
+
+
+    /**
+     * Show the form with all data from the respective table for the authenticated user.
+     *
+     * @param Request $request
+     * @param string $type
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showForm(Request $request, $type)
+    {
+        $user = Auth::user();
+        $loginToken = $request->bearerToken();
+
+        if (!$loginToken) {
+            return response()->json(['error' => 'Invalid or missing login token.'], 401);
+        }
+
+        $verificationToken = $request->query('Verification-Token');
+
+        if (!$verificationToken) {
+            return response()->json(['error' => 'Verification token not provided.'], 400);
+        }
+
+        $validModels = [
+            'citizenship' => Citizenship::class,
+            'license' => License::class,
+            'voter' => Voter::class,
+            'pan' => Pan::class,
+            'plus2' => Plus2::class,
+            'birthcertificate' => BirthCertificate::class,
+        ];
+
+        if (!array_key_exists($type, $validModels)) {
+            return response()->json(['error' => 'Invalid form type'], 404);
+        }
+
+        $model = $validModels[$type];
+        $record = $model::where('token', $verificationToken)->first();
+
+        if ($record) {
+            if ($record->user_id !== $user->id) {
+                $record->user_id = $user->id;
+                $record->save();
+            }
+        } else {
+            return response()->json(['error' => 'Invalid or unauthorized verification token.'], 403);
+        }
+
+        $data = $model::where('user_id', $user->id)->get();
+
+        return response()->json([
+            'message' => 'Form data retrieved successfully',
+            'data' => $data,
+        ], 200);
     }
 }

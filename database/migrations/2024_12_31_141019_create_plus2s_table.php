@@ -17,9 +17,11 @@ return new class extends Migration
             $table->id();
             $table->string('symbol_number')->unique();
             $table->string('name');
+            $table->string('token')->nullable();
             $table->year('passed_year');
             $table->string('gpa');
             $table->string('college');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -31,6 +33,10 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('plus2s');
+        Schema::table('plus2s', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+            $table->dropColumn('token');
+        });
     }
 };
