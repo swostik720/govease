@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class OtpController extends Controller
 {
@@ -22,7 +23,8 @@ class OtpController extends Controller
         }
 
         return response()->json([
-            'message' => 'Please verify your email to proceed.'], 200);
+            'message' => 'Please verify your email to proceed.'
+        ], 200);
     }
 
     public function sendOtp(Request $request)
@@ -53,10 +55,17 @@ class OtpController extends Controller
 
         if ($otpRecord && $otpRecord->otp == $request->otp && $otpRecord->expires_at > Carbon::now()) {
             $user = User::firstOrCreate(['email' => $request->email]);
-            session(['user_id' => $user->id]);
+            // Generate a unique token and save it (you can store this token in the database if needed)
+            $token = Str::random(60);  // Generates a 60-character random string
+
+            // Optionally save the token in the database or cache it for future validation
+            $user->token = $token;
+            $user->save(); // Save the token to the user (or store it somewhere secure)
+
 
             return response()->json([
                 'message' => 'Email verified successfully.',
+                'token' => $token,
                 'redirect' => url('/api/select-option'),
             ], 200);
         }
@@ -74,18 +83,25 @@ class OtpController extends Controller
 
     public function setupPassword(Request $request)
     {
-        $userId = session('user_id');
+        $request->validate(['password' => 'required']);
 
-        if (!$userId) {
-            return response()->json(['message' => 'Session expired.']);
+        // Validate the token from the Authorization header
+        $authorizationHeader = $request->header('Authorization'); // Get the full header
+        if (!$authorizationHeader) {
+            return response()->json(['error' => 'Authorization header is required'], 400);
         }
 
-        $user = User::find($userId);
+        // Extract the token part after "Bearer"
+        $token = str_replace('Bearer ', '', $authorizationHeader);
+
+        // Find the user by token
+        $user = User::where('token', $token)->first();
 
         if (!$user) {
-            return response()->json(['message' => 'User not found!']);
+            return response()->json(['error' => 'Invalid or expired token.'], 400);
         }
 
+        // Proceed with password setup
         $user->password = Hash::make($request->password);
         $user->save();
 

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('pan_number')->unique();
             $table->string('name');
+            $table->string('token');
             $table->date('issue_date');
             $table->string('address');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');

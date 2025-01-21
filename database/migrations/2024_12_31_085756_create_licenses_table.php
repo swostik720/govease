@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('license_number')->unique();
             $table->string('name');
+            $table->string('token')->nullable();
             $table->string('vehicle_type');
             $table->date('issue_date');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
@@ -34,5 +35,6 @@ return new class extends Migration
         Schema::table('licenses', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->dropColumn('user_id');
+            $table->dropColumn('token');
         });    }
 };

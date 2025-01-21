@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Citizenship;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class CitizenshipController extends Controller
 {
@@ -25,13 +26,18 @@ class CitizenshipController extends Controller
             ->first();
 
         if ($citizenship) {
-            // Store user ID in session
-            Session::put('verified_user_id', $citizenship->user_id);
+            // Generate a simple random token
+            $token = Str::random(60);  // 60-character random string
+
+            // Store the token in the database or in a separate table (optional)
+            $citizenship->token = $token;
+            $citizenship->save(); // Save token to database
         }
 
         if ($citizenship) {
             return response()->json([
                 'message' => 'Citizenship verified successfully.',
+                'token' => $token,
                 'redirect' => route('setup-password.form'),
             ], 200);
         }

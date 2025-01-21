@@ -5,14 +5,10 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Plus2;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class Plus2Seeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         $user = User::first();
@@ -24,7 +20,7 @@ class Plus2Seeder extends Seeder
             'gpa' => '3.8',
             'college' => 'ABC',
             'user_id' => $user ? $user->id : null,
-
+            'token' => Str::random(60),
         ]);
 
         Plus2::create([
@@ -34,7 +30,7 @@ class Plus2Seeder extends Seeder
             'gpa' => '3.5',
             'college' => 'XYZ',
             'user_id' => $user ? $user->id : null,
-
+            'token' => Str::random(60),
         ]);
     }
 }

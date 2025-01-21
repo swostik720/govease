@@ -4,16 +4,11 @@ namespace Database\Seeders;
 
 use App\Models\BirthCertificate;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class BirthcertificateSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         $user = User::first();
@@ -26,6 +21,7 @@ class BirthcertificateSeeder extends Seeder
             'father_name' => 'Robert Doe',
             'mother_name' => 'Emily Doe',
             'user_id' => $user ? $user->id : null,
+            'token' => Str::random(60),
         ]);
 
         BirthCertificate::create([
@@ -36,6 +32,7 @@ class BirthcertificateSeeder extends Seeder
             'father_name' => 'Michael Smith',
             'mother_name' => 'Sophia Smith',
             'user_id' => $user ? $user->id : null,
+            'token' => Str::random(60),
         ]);
     }
 }

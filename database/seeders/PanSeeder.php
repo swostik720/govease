@@ -5,14 +5,10 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Pan;
 use App\Models\User;
+use Illuminate\Support\Str;
 
 class PanSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
         $user = User::first();
@@ -23,7 +19,7 @@ class PanSeeder extends Seeder
             'issue_date' => '2021-03-10',
             'address' => '123 Main Street',
             'user_id' => $user ? $user->id : null,
-
+            'token' => Str::random(60),
         ]);
 
         Pan::create([
@@ -32,7 +28,7 @@ class PanSeeder extends Seeder
             'issue_date' => '2020-12-25',
             'address' => '456 Elm Street',
             'user_id' => $user ? $user->id : null,
-
+            'token' => Str::random(60),
         ]);
     }
 }

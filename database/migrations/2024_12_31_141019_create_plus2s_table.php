@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('symbol_number')->unique();
             $table->string('name');
+            $table->string('token');
             $table->year('passed_year');
             $table->string('gpa');
             $table->string('college');
