@@ -96,7 +96,9 @@ class AuthController extends Controller
 
         // Create custom reset link
         $passwordResetUrl = 'passwordResetForm/';
-        $resetUrl = url($passwordResetUrl . $token . '?email=' . urlencode($request->email));
+        // $resetUrl = config($passwordResetUrl . $token . '?email=' . urlencode($request->email));
+        // Create custom reset link for the frontend
+        $resetUrl = config('app.frontend_url') . '/resetpassword?token=' . $token . '&email=' . urlencode($request->email);
 
         // Send raw email with custom message
         Mail::raw("To reset your password, click the following link: $resetUrl", function ($message) use ($request) {
