@@ -50,7 +50,7 @@ class LicenseController extends Controller
 
             return response()->json([
                 'message' => 'License verified successfully.',
-                'token' => $token,
+                'license-token' => $token,
                 'redirect' => route('setup-password.form'),
             ], 200);
         }

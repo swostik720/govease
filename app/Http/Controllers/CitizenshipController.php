@@ -58,7 +58,7 @@ class CitizenshipController extends Controller
 
             return response()->json([
                 'message' => 'Citizenship verified successfully.',
-                'token' => $token,
+                'citizenship-token' => $token,
                 'redirect' => route('setup-password.form'),
             ], 200);
         }
