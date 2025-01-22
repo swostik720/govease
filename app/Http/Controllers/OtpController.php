@@ -83,7 +83,7 @@ class OtpController extends Controller
 
     public function setupPassword(Request $request)
     {
-        $request->validate(['password' => 'required']);
+        // $request->validate(['password' => 'required']);
 
         // Validate the token from the Authorization header
         $authorizationHeader = $request->header('Authorization'); // Get the full header
@@ -108,6 +108,7 @@ class OtpController extends Controller
         return response()->json([
             'message' => 'Password setup successfully. Please log in to continue!',
             'redirect' => route('loginForm'),
+            'password_token'=>$token,
         ]);
     }
 }
