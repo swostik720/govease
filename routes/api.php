@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OtpController;
 use App\Http\Controllers\CitizenshipController;
+use App\Http\Controllers\ContactUsController;
 use App\Http\Controllers\LicenseController;
 use App\Http\Controllers\HomeController;
 
@@ -83,4 +84,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/home/{type}', [HomeController::class, 'showForm']);
 });
 
-
+//Contact-us Routes
+Route::post('/contact-us', [ContactUsController::class, 'store']);
