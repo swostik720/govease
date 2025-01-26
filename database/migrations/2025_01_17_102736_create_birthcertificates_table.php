@@ -23,6 +23,15 @@ return new class extends Migration
             $table->string('father_name');
             $table->string('mother_name');
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->string('birth_date_in_words');
+            $table->date('birth_date_in_digits');
+            $table->string('birth_time');
+            $table->string('gender');
+            $table->string('religion');
+            $table->string('caste');
+            $table->string('registrar_name');
+            $table->date('registration_date');
+            $table->text('remarks')->nullable();
             $table->timestamps();
         });
     }
