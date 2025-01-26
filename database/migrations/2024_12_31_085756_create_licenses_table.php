@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('license_number')->unique();
             $table->string('name');
+            $table->date('dob');
             $table->string('token')->nullable();
             $table->string('vehicle_type');
             $table->date('issue_date');

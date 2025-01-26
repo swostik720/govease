@@ -20,6 +20,7 @@ class LicenseSeeder extends Seeder
         License::create([
             'license_number' => 'LIC-001',
             'name' => 'John Doe',
+            'dob' => '2002-01-01',
             'vehicle_type' => 'Car',
             'issue_date' => '2022-01-01',
             'user_id' => $user ? $user->id : null,
@@ -29,6 +30,7 @@ class LicenseSeeder extends Seeder
         License::create([
             'license_number' => 'LIC-002',
             'name' => 'Jane Smith',
+            'dob' => '2002-01-01',
             'vehicle_type' => 'Bike',
             'issue_date' => '2023-06-15',
             'user_id' => $user ? $user->id : null,

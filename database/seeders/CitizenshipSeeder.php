@@ -22,6 +22,7 @@ class CitizenshipSeeder extends Seeder
         Citizenship::create([
             'number' => 'CIT-123456',
             'name' => 'John Doe',
+            'dob' => '2002-01-01',
             'issue_date' => '2020-01-01',
             'address' => '123 Main Street',
             'user_id' => $user ? $user->id : null,
@@ -30,6 +31,7 @@ class CitizenshipSeeder extends Seeder
         Citizenship::create([
             'number' => 'CIT-789012',
             'name' => 'Jane Smith',
+            'dob' => '2002-01-01',
             'issue_date' => '2021-05-15',
             'address' => '456 Elm Street',
             'user_id' => $user ? $user->id : null,

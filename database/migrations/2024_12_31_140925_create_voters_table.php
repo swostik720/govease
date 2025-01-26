@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('voter_number')->unique();
             $table->string('name');
+            $table->date('dob');
             $table->string('token')->nullable();
             $table->date('issue_date');
             $table->string('address');

@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('citizenships', function (Blueprint $table) {
             $table->id();
             $table->string('number')->unique(); // Citizenship number
+            $table->date('dob');
             $table->string('name');
             $table->date('issue_date');
             $table->string('address');
